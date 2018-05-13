@@ -1,16 +1,37 @@
 <template>
   <div class="menu">
     <router-link v-for="link in links" :key="link.path" :to="link.path">
-      {{ link.text }}
+      <div v-if="link.path === 'breed'">
+        <!--<select @change="changeLocation">-->
+          <!--<option v-for="(value, key) in breeds" :key="key" :value="value">{{key}}</option>-->
+        <!--</select>-->
+        <div @click="isOpen = !isOpen">
+          <span>
+            {{ link.text }}
+          </span>
+          <ul v-if="isOpen">
+            <li v-for="(value, key) in breeds" :key="key" :value="value"
+                @click="() => changeLocation(key)">
+              {{key}}
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div v-else>
+        {{ link.text }}
+      </div>
     </router-link>
   </div>
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   name: 'Menu',
   data () {
     return {
+      isOpen: false,
+      breeds: [],
       links: [
         {
           path: '/',
@@ -25,6 +46,16 @@ export default {
           text: 'Избранное'
         }
       ]
+    }
+  },
+  created () {
+    axios.get('https://dog.ceo/api/breeds/list/all').then(resp => {
+      this.$data.breeds = resp.data.message
+    })
+  },
+  methods: {
+    changeLocation (breed) {
+      axios.get(`https://dog.ceo/api/breed/${breed}/images`)
     }
   }
 }
